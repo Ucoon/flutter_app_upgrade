@@ -9,9 +9,9 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 flutter app upgrade
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/Ucoon/flutter_app_upgrade'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'ucoon' => 'ucoontech@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'

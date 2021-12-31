@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
             ),
             TextButton(
               onPressed: () async {
-                FlutterAppUpgrade.goToAppStore('');
+                FlutterAppUpgrade.goToAppStore('432274380');
               },
               child: const Text('跳转AppStore(仅适用于iOS)'),
             ),
