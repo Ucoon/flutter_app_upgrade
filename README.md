@@ -8,7 +8,7 @@ Android app应用内升级，iOS跳转至AppStore
 dependencies:
   flutter:
     sdk: flutter
-  kooboo_flutter_app_upgrade: ^0.0.2
+  kooboo_flutter_app_upgrade: ^0.0.3
 ```
 
 导入：

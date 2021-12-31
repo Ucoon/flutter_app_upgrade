@@ -5,3 +5,7 @@
 ## 0.0.2
 
 * Update readme.md
+
+## 0.0.3
+
+* Update plugin name

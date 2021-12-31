@@ -3,8 +3,8 @@
 # Run `pod lib lint flutter_app_upgrade.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'flutter_app_upgrade'
-  s.version          = '0.0.1'
+  s.name             = 'kooboo_flutter_app_upgrade'
+  s.version          = '0.0.3'
   s.summary          = 'flutter app upgrade'
   s.description      = <<-DESC
 flutter app upgrade
