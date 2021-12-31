@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:background="@drawable/shape_dialog_bg">
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        tools:text="安装应用需要打开未知来源权限，请去设置中开启权限"
+        android:textColor="#81818F"/>
+    <Button
+        android:id="@+id/btnConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="确定"
+        android:textSize="14sp"
+        android:textColor="#FFF"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shape_dialog_text_bg"/>
+</LinearLayout>
