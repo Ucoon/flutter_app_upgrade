@@ -17,6 +17,12 @@ class FlutterAppUpgrade {
     return await _methodChannel.invokeMethod('install', map);
   }
 
+  ///增量更新apk(仅适用于Android)
+  static patchInstallAppForAndroid(String patchPath) async {
+    var map = {'patchPath': patchPath};
+    return await _methodChannel.invokeMethod('patchInstall', map);
+  }
+
   ///跳转AppStore(仅适用于iOS)
   static goToAppStore(String id) async {
     var map = {'id': id};

@@ -53,6 +53,18 @@ class _MyAppState extends State<MyApp> {
             ),
             TextButton(
               onPressed: () async {
+                String apkDownloadPath =
+                    await FlutterAppUpgrade.apkDownloadPath;
+                FlutterAppUpgrade.patchInstallAppForAndroid(
+                    '$apkDownloadPath/app-V1.0_2.0.patch');
+              },
+              child: const Text('增量更新Apk(仅适用于Android)'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextButton(
+              onPressed: () async {
                 FlutterAppUpgrade.goToMarket();
               },
               child: const Text('跳转应用市场(仅适用于Android)'),

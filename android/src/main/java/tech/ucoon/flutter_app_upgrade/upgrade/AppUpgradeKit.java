@@ -40,6 +40,14 @@ public class AppUpgradeKit {
         }
     }
 
+    public void patchInstall(String patchPath) {
+        String newApkPath = mContext.getExternalFilesDir("").getAbsolutePath() + "/new.apk";
+        int result = patch(mContext.getApplicationInfo().sourceDir, newApkPath, patchPath);
+        if (result == 0){
+            install(newApkPath);
+        }
+    }
+
     /**
      * 安装app, Android 7.0以下
      *
@@ -74,6 +82,12 @@ public class AppUpgradeKit {
         context.startActivity(intent);
     }
 
+    /**
+     * 安装app, Android 8.0及以上
+     *
+     * @param context
+     * @param path
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private static void startInstallO(Activity context, String path) {
         boolean isGranted = context.getPackageManager().canRequestPackageInstalls();
@@ -113,4 +127,19 @@ public class AppUpgradeKit {
             Toast.makeText(mContext, "您的手机没有安装应用商店", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    static {
+        System.loadLibrary("diff-update");
+    }
+
+    /**
+     * native方法 使用路径为oldApkPath的apk与路径为patchPath的补丁包，合成新的apk，并存储于newApkPath
+     *
+     * @param oldApkPath
+     * @param newApkPath
+     * @param patchPath
+     * @return 0: 操作成功
+     */
+    public static native int patch(String oldApkPath, String newApkPath, String patchPath);
 }

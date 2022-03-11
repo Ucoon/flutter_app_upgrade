@@ -41,6 +41,10 @@ public class FlutterAppUpgradePlugin implements FlutterPlugin, MethodCallHandler
                 String path = call.argument("path");
                 mAppUpgradeKit.install(path);
                 break;
+            case ChannelConstants.PATCH_INSTALL:
+                String patchPath = call.argument("patchPath");
+                mAppUpgradeKit.patchInstall(patchPath);
+                break;
             case ChannelConstants.GO_TO_MARKET:
                 mAppUpgradeKit.goToMarket();
                 break;
