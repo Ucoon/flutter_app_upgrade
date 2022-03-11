@@ -9,3 +9,7 @@
 ## 0.0.3
 
 * Update plugin name
+
+## 0.0.4
+
+* Android: 增量更新
