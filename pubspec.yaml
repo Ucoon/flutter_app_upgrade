@@ -1,6 +1,6 @@
 name: kooboo_flutter_app_upgrade
 description: flutter app upgrade
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/Ucoon/flutter_app_upgrade
 
 environment:
