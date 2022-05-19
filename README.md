@@ -28,6 +28,8 @@ String apkDownloadPath =await FlutterAppUpgrade.apkDownloadPath;
 FlutterAppUpgrade.patchInstallAppForAndroid('$apkDownloadPath/app-V1.0_2.0.patch');
 ///跳转应用市场(仅适用于Android)
 FlutterAppUpgrade.goToMarket();
+///跳转Google应用市场(仅适用于Android)
+FlutterAppUpgrade.goToGoogleMarket();
 ///跳转AppStore(仅适用于iOS)
 FlutterAppUpgrade.goToAppStore('appId');
 ```

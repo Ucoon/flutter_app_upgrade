@@ -128,6 +128,33 @@ public class AppUpgradeKit {
         }
     }
 
+    /**
+     * 跳转到谷歌应用市场
+     *
+     */
+    public void goToGoogleMarket() {
+        try {
+            PackageInfo packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=" + packageInfo.packageName));
+            intent.setPackage("com.android.vending");//这里对应的是谷歌商店，跳转别的商店改成对应的即可
+            if (intent.resolveActivity(mContext.getPackageManager()) != null) {
+                mContext.startActivity(intent);
+            } else {//没有应用市场，通过浏览器跳转到Google Play
+                Intent intent2 = new Intent(Intent.ACTION_VIEW);
+                intent2.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + packageInfo.packageName));
+                if (intent2.resolveActivity(mContext.getPackageManager()) != null) {
+                    mContext.startActivity(intent2);
+                } else {
+                    //没有Google Play 也没有浏览器
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     static {
         System.loadLibrary("diff-update");

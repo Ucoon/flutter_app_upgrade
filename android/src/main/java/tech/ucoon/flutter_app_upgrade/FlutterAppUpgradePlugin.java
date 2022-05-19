@@ -47,6 +47,8 @@ public class FlutterAppUpgradePlugin implements FlutterPlugin, MethodCallHandler
                 break;
             case ChannelConstants.GO_TO_MARKET:
                 mAppUpgradeKit.goToMarket();
+            case ChannelConstants.GO_TO_GOOGLE_MARKET:
+                mAppUpgradeKit.goToGoogleMarket();
                 break;
             default:
                 result.notImplemented();

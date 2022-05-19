@@ -33,4 +33,9 @@ class FlutterAppUpgrade {
   static goToMarket() async {
     return await _methodChannel.invokeMethod('goToMarket');
   }
+
+  ///跳转Google应用市场(仅适用于Android)
+  static goToGoogleMarket() async {
+    return await _methodChannel.invokeMethod('goToGoogleMarket');
+  }
 }
