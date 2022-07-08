@@ -25,3 +25,7 @@
 ## 0.0.7
 
 - Android: goToGoogleMarket
+
+## 0.0.8
+
+- Android: downloadApkInstall

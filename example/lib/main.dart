@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
             TextButton(
               onPressed: () async {
                 FlutterAppUpgrade.downloadApkInstall(
-                    'http://video.kooboo.cn:5022/uploadAPK/apk/20220530/030cb2a6-1ce8-479b-8ce6-f88793677d2c.apk',
+                    'url',
                     '1.0.1');
               },
               child: const Text('下载并安装Apk(仅适用于Android)'),

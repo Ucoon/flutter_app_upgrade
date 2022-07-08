@@ -8,7 +8,7 @@ Android app应用内升级，iOS跳转至AppStore
 dependencies:
   flutter:
     sdk: flutter
-  kooboo_flutter_app_upgrade: ^0.0.6
+  kooboo_flutter_app_upgrade: ^0.0.8
 ```
 
 导入：
@@ -20,9 +20,18 @@ import 'package:flutter_app_upgrade/flutter_app_upgrade.dart';
 使用：
 
 ```dart
-///安装apk(仅适用于Android)
-String apkDownloadPath = await FlutterAppUpgrade.apkDownloadPath;
-FlutterAppUpgrade.installAppForAndroid('$apkDownloadPath/temp.apk');
+///下载并安装apk(仅适用于Android)
+FlutterAppUpgrade.downloadApkInstall('url','1.0.1');
+///监听下载进度
+FlutterAppUpgrade.onListenStreamData(
+	(event) {
+        debugPrint('_MyAppState.initState receive data $event');
+	},
+	onError: (error) {
+        debugPrint('_MyAppState.initState receive error ${error.message}');
+    },
+);
+
 ///增量更新apk(仅适用于Android)
 String apkDownloadPath =await FlutterAppUpgrade.apkDownloadPath;
 FlutterAppUpgrade.patchInstallAppForAndroid('$apkDownloadPath/app-V1.0_2.0.patch');
