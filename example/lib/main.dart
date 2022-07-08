@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_upgrade/flutter_app_upgrade.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,6 +16,21 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      FlutterAppUpgrade.onListenStreamData(
+        (event) {
+          if (event is Map && event.containsKey('progress')) {
+            debugPrint(
+                '_MyAppState.initState progress ${event['progress'] * 100}');
+          } else {
+            debugPrint('_MyAppState.initState receive data $event');
+          }
+        },
+        onError: (error) {
+          debugPrint('_MyAppState.initState receive error ${error.message}');
+        },
+      );
+    });
   }
 
   @override
@@ -30,33 +44,19 @@ class _MyAppState extends State<MyApp> {
           children: <Widget>[
             TextButton(
               onPressed: () async {
-                String apkDownloadPath =
-                    await FlutterAppUpgrade.apkDownloadPath;
-                Fluttertoast.showToast(msg: apkDownloadPath);
+                FlutterAppUpgrade.downloadApkInstall(
+                    'http://video.kooboo.cn:5022/uploadAPK/apk/20220530/030cb2a6-1ce8-479b-8ce6-f88793677d2c.apk',
+                    '1.0.1');
               },
-              child: const Text('获取apk安装路径(仅适用于Android)'),
+              child: const Text('下载并安装Apk(仅适用于Android)'),
             ),
             const SizedBox(
               height: 10,
             ),
             TextButton(
               onPressed: () async {
-                String apkDownloadPath =
-                    await FlutterAppUpgrade.apkDownloadPath;
-                FlutterAppUpgrade.installAppForAndroid(
-                    '$apkDownloadPath/temp.apk');
-              },
-              child: const Text('安装已下载的Apk(仅适用于Android)'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextButton(
-              onPressed: () async {
-                String apkDownloadPath =
-                    await FlutterAppUpgrade.apkDownloadPath;
                 FlutterAppUpgrade.patchInstallAppForAndroid(
-                    '$apkDownloadPath/app-V1.0_2.0.patch');
+                    'app-V1.0_2.0.patch');
               },
               child: const Text('增量更新Apk(仅适用于Android)'),
             ),

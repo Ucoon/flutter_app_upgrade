@@ -1,32 +1,134 @@
 package tech.ucoon.flutter_app_upgrade.upgrade;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.flutter.plugin.common.EventChannel;
+import tech.ucoon.flutter_app_upgrade.entity.UpdateEntity;
+import tech.ucoon.flutter_app_upgrade.service.DownloadService;
+import tech.ucoon.flutter_app_upgrade.service.OnFileDownloadListener;
 
 /**
  * app升级安装工具类
  */
 public class AppUpgradeKit {
     public static final int REQUEST_UNKNOWN_CODE = 10086;
-    private Activity mContext;
+    private final Activity mContext;
     public String appDownloadPath;
+    private DownloadService.DownloadBinder mDownloadBinder;
+    private EventChannel.EventSink mEventSink;
+
+    /**
+     * 服务绑定连接
+     */
+    private ServiceConnection mServiceConnection;
+
+    /**
+     * 是否已经绑定下载服务
+     */
+    private boolean mBound;
 
     public AppUpgradeKit(Activity context) {
-        mContext = context;
+        this.mContext = context;
+    }
+
+    public void setEventSink(EventChannel.EventSink mEventSink) {
+        this.mEventSink = mEventSink;
+    }
+
+    private void sendEventToStream(Map<String, Object> data) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            mEventSink.success(data);
+        });
+    }
+
+    private void sendErrorEventToStream(String errorCode, Throwable throwable) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            mEventSink.error(errorCode, throwable.getMessage(), throwable);
+        });
+    }
+
+    public void startDownloadService(@NonNull final UpdateEntity updateEntity) {
+        DownloadService.bindService(mContext, mServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mBound = true;
+                startDownload((DownloadService.DownloadBinder) service, updateEntity);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mBound = false;
+            }
+        });
+    }
+
+    private void startDownload(DownloadService.DownloadBinder downloadBinder, @NonNull final UpdateEntity updateEntity) {
+        mDownloadBinder = downloadBinder;
+        mDownloadBinder.start(updateEntity, new OnFileDownloadListener() {
+            @Override
+            public void onStart() {
+                Map<String, Object> data = new HashMap<>();
+                data.put("msg", "start download");
+                sendEventToStream(data);
+            }
+
+            @Override
+            public void onProgress(float progress, long total) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("progress", progress);
+                data.put("total", total);
+                sendEventToStream(data);
+            }
+
+            @Override
+            public void onCompleted(File file) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("msg", "download complete");
+                data.put("filePath", file.getAbsolutePath());
+                sendEventToStream(data);
+                install(file.getAbsolutePath());
+                cancelDownload();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                sendErrorEventToStream("downloadErrorCode", throwable);
+                cancelDownload();
+            }
+        });
+    }
+
+    private void cancelDownload() {
+        if (mDownloadBinder != null) {
+            mDownloadBinder.stop();
+        }
+        if (mBound && mServiceConnection != null) {
+            mContext.unbindService(mServiceConnection);
+            mBound = false;
+            mServiceConnection = null;
+        }
     }
 
     public void install(String path) {
@@ -43,7 +145,7 @@ public class AppUpgradeKit {
     public void patchInstall(String patchPath) {
         String newApkPath = mContext.getExternalFilesDir("").getAbsolutePath() + "/new.apk";
         int result = patch(mContext.getApplicationInfo().sourceDir, newApkPath, patchPath);
-        if (result == 0){
+        if (result == 0) {
             install(newApkPath);
         }
     }
@@ -51,8 +153,8 @@ public class AppUpgradeKit {
     /**
      * 安装app, Android 7.0以下
      *
-     * @param context
-     * @param path
+     * @param context 上下文
+     * @param path    apk文件路径
      */
     private static void startInstall(Context context, String path) {
         if (TextUtils.isEmpty(path)) return;
@@ -67,8 +169,8 @@ public class AppUpgradeKit {
     /**
      * 安装app, Android 7.0及以上
      *
-     * @param context
-     * @param path
+     * @param context 上下文
+     * @param path    apk文件路径
      */
     private static void startInstallN(Context context, String path) {
         if (TextUtils.isEmpty(path)) return;
@@ -85,27 +187,28 @@ public class AppUpgradeKit {
     /**
      * 安装app, Android 8.0及以上
      *
-     * @param context
-     * @param path
+     * @param context 上下文
+     * @param path    apk文件路径
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void startInstallO(Activity context, String path) {
+    private static void startInstallO(Context context, String path) {
         boolean isGranted = context.getPackageManager().canRequestPackageInstalls();
         if (isGranted) {
             startInstallN(context, path);
         } else {
             OpenUnKnownSettingDialog dialog = new OpenUnKnownSettingDialog(context, "安装应用需要打开未知来源权限，请去设置中开启权限");
-            dialog.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-                        Uri uri = Uri.parse("package:" + packageInfo.packageName);
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, uri);
-                        context.startActivityForResult(intent, REQUEST_UNKNOWN_CODE);
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
+            dialog.setOnClickListener(v -> {
+                try {
+                    PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                    Uri uri = Uri.parse("package:" + packageInfo.packageName);
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, uri);
+                    if (context instanceof Activity) {
+                        ((Activity) context).startActivityForResult(intent, REQUEST_UNKNOWN_CODE);
+                    } else {
+                        context.startActivity(intent);
                     }
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
                 }
             });
             dialog.show();
@@ -130,7 +233,6 @@ public class AppUpgradeKit {
 
     /**
      * 跳转到谷歌应用市场
-     *
      */
     public void goToGoogleMarket() {
         try {
@@ -145,15 +247,12 @@ public class AppUpgradeKit {
                 intent2.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + packageInfo.packageName));
                 if (intent2.resolveActivity(mContext.getPackageManager()) != null) {
                     mContext.startActivity(intent2);
-                } else {
-                    //没有Google Play 也没有浏览器
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     static {
@@ -163,9 +262,9 @@ public class AppUpgradeKit {
     /**
      * native方法 使用路径为oldApkPath的apk与路径为patchPath的补丁包，合成新的apk，并存储于newApkPath
      *
-     * @param oldApkPath
-     * @param newApkPath
-     * @param patchPath
+     * @param oldApkPath 旧的Apk文件路径
+     * @param newApkPath 新的Apk文件路径
+     * @param patchPath  补丁包文件路径
      * @return 0: 操作成功
      */
     public static native int patch(String oldApkPath, String newApkPath, String patchPath);

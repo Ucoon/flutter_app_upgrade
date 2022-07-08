@@ -1,20 +1,24 @@
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 
 class FlutterAppUpgrade {
   static const MethodChannel _methodChannel =
-      MethodChannel('flutter_app_upgrade');
+      MethodChannel('flutter_app_upgrade_method');
 
-  ///获取apk 下载路径(仅适用于Android)
-  static Future<String> get apkDownloadPath async {
-    return await _methodChannel.invokeMethod('getApkDownloadPath');
+  static const EventChannel _eventChannel = EventChannel('flutter_app_upgrade_event');
+
+  ///监听下载进度
+  static void onListenStreamData(Function onEvent, {Function? onError}) {
+    _eventChannel
+        .receiveBroadcastStream()
+        .listen((event) {
+      onEvent.call(event);
+    }, onError: onError);
   }
 
-  ///安装apk(仅适用于Android)
-  static installAppForAndroid(String path) async {
-    var map = {'path': path};
-    return await _methodChannel.invokeMethod('install', map);
+  ///下载并安装apk(仅适用于Android)
+  static downloadApkInstall(String downloadUrl, String versionName) async {
+    var map = {'downloadUrl': downloadUrl, 'versionName': versionName};
+    return await _methodChannel.invokeMethod('downloadApkInstall', map);
   }
 
   ///增量更新apk(仅适用于Android)

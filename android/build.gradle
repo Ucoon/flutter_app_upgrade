@@ -38,3 +38,8 @@ android {
         }
     }
 }
+
+dependencies {
+    implementation 'com.zhy:okhttputils:2.6.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+}
