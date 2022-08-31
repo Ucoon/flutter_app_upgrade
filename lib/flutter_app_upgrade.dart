@@ -4,13 +4,12 @@ class FlutterAppUpgrade {
   static const MethodChannel _methodChannel =
       MethodChannel('flutter_app_upgrade_method');
 
-  static const EventChannel _eventChannel = EventChannel('flutter_app_upgrade_event');
+  static const EventChannel _eventChannel =
+      EventChannel('flutter_app_upgrade_event');
 
   ///监听下载进度
   static void onListenStreamData(Function onEvent, {Function? onError}) {
-    _eventChannel
-        .receiveBroadcastStream()
-        .listen((event) {
+    _eventChannel.receiveBroadcastStream().listen((event) {
       onEvent.call(event);
     }, onError: onError);
   }
@@ -39,7 +38,8 @@ class FlutterAppUpgrade {
   }
 
   ///跳转Google应用市场(仅适用于Android)
-  static goToGoogleMarket() async {
-    return await _methodChannel.invokeMethod('goToGoogleMarket');
+  static goToGoogleMarket({String packageId = ''}) async {
+    var map = {'packageId': packageId};
+    return await _methodChannel.invokeMethod('goToGoogleMarket', map);
   }
 }
