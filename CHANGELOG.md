@@ -29,3 +29,8 @@
 ## 0.0.8
 
 - Android: downloadApkInstall
+
+
+## 0.0.9
+
+- update goToGoogleMarket
